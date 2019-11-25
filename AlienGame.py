@@ -28,7 +28,8 @@ def run_game():
     while True:
         gf.check_events(settings, screen, snail, bullets)
         snail.update()
-        gf.update_bullets(bullets)
+        gf.update_bullets(settings, screen, snail, mushrooms, bullets)
+        gf.update_mushrooms(settings, mushrooms)
         gf.update_screen(settings, screen, snail, mushrooms, bullets)
 
 run_game()

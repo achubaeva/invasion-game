@@ -24,3 +24,16 @@ class Mushroom(Sprite):
     def blitme(self):
         '''Draw the mushroom at its current location.'''
         self.screen.blit(self.image, self.rect)
+    
+    def update(self):
+        '''Move mushroom to the right or left'''
+        self.x += (self.settings.mushroom_speed_factor*self.settings.fleet_direction)
+        self.rect.x = self.x
+
+    def check_edges(self):
+        '''Return True if mushroom at edge of screen.'''
+        screen_rect = self.screen.get_rect()
+        if self.rect.right >= screen_rect.right:
+            return True
+        elif self.rect.left <= 0:
+            return True

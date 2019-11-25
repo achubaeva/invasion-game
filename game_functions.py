@@ -73,7 +73,7 @@ def update_screen(settings, screen, snail, mushrooms, bullets):
     # Make the most recently drawn screen visible
     pygame.display.flip()
 
-def update_bullets(bullets):
+def update_bullets(settings, screen, snail, mushrooms, bullets):
     '''Update the position of bullets and get rid of old bullets.'''
     # update bullet positions.
     # Get rid of bullets that have dissappeared.
@@ -81,6 +81,18 @@ def update_bullets(bullets):
     for bullet in bullets.copy():
         if bullet.rect.bottom <=0:
             bullets.remove(bullet)
+    
+    check_bullet_mushroom_collisions(settings, screen, snail, mushrooms, bullets)
+
+def check_bullet_mushroom_collisions(settings, screen, snail, mushrooms, bullets):
+    '''Respond to bullet-mushroom collisions'''
+    # Check for any bullets that hit mushrooms. If so, get rid of bullet and mushroom.
+    collisions = pygame.sprite.groupcollide(bullets, mushrooms, True, True)
+    if len(mushrooms) == 0:
+        # Destroy exisitng bullets and create new fleet.
+        bullets.empty()
+        create_fleet(settings, screen, snail, mushrooms)
+
 
 def create_fleet(settings, screen, snail, mushrooms):
     '''Create fleet of mushrooms.'''
@@ -97,12 +109,28 @@ def create_fleet(settings, screen, snail, mushrooms):
             # Create a mushroom and place it in the row
             create_mushroom(settings, screen, mushrooms, mushroom_number, row_number)
 
-    
-
+def update_mushrooms(settings, mushrooms):
+    '''Update the positions of all mushrooms in fleet.'''
+    check_fleet_edges(settings, mushrooms)
+    mushrooms.update()
         
 
 def get_number_rows(settings, snail_height, mushroom_height):
     '''Determine the number of rows of mushrooms that fit on the screen.'''
-    available_space_y = (settings.screen_height - (3*mushroom_height)-snail_height)
+    available_space_y = (settings.screen_height - (2*mushroom_height)-snail_height)
     number_rows = int(available_space_y / (2*mushroom_height))
     return number_rows
+
+def check_fleet_edges(settings, mushrooms):
+    '''Respond if mushrooms have reached an edge'''
+    for mushroom in mushrooms.sprites():
+        if mushroom.check_edges():
+            change_fleet_direction(settings, mushrooms)
+            break
+
+def change_fleet_direction(settings, mushrooms):
+    '''Drop the entire fleet and change its direction.'''
+    for mushroom in mushrooms.sprites():
+        mushroom.rect.y += settings.fleet_drop_speed
+    settings.fleet_direction *= -1
+
