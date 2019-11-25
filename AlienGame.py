@@ -22,7 +22,7 @@ def run_game():
     mushrooms = Group()
 
     # Create grouping of mushrooms.
-    gf.create_fleet(settings, screen, mushrooms)
+    gf.create_fleet(settings, screen, snail, mushrooms)
 
     # Start the main loop for the game.
     while True:

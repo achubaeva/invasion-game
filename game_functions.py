@@ -3,6 +3,24 @@ import pygame
 from bullet import Bullet
 from mushroom import Mushroom
 
+def get_number_mushrooms_x(settings, mushroom_width):
+    '''Determine the number of mushrooms that fit in a row'''
+    available_space_x = settings.screen_width - 2 * (mushroom_width)
+    number_mushrooms_x = int(available_space_x / (2* mushroom_width))
+    return number_mushrooms_x 
+
+def create_mushroom(settings, screen, mushrooms, mushroom_number, row_number):
+    '''Create a mushroom and place it in the row.'''
+    mushroom = Mushroom(settings, screen)
+    mushroom_width = mushroom.rect.width
+    mushroom.x = mushroom_width + 2 * mushroom_width * mushroom_number
+    mushroom.rect.x = mushroom.x
+    
+    mushroom.rect.y = mushroom.rect.height + 2 * mushroom.rect.height * row_number
+    
+    mushrooms.add(mushroom)
+
+
 def check_keydown_events(event, settings, screen, snail, bullets):
     if event.key == pygame.K_RIGHT:
         # Move the snail to the right.
@@ -10,7 +28,7 @@ def check_keydown_events(event, settings, screen, snail, bullets):
     elif event.key == pygame.K_LEFT:
         # Move the snail to the left.
         snail.moving_left = True
-    elif event.key == pygame.K_SPACE:
+    elif event.key == pygame.K_UP:
         fire_bullet(settings, screen, snail, bullets)
     elif event.key == pygame.K_q:
             pygame. quit()
@@ -64,19 +82,27 @@ def update_bullets(bullets):
         if bullet.rect.bottom <=0:
             bullets.remove(bullet)
 
-def create_fleet(settings, screen, mushrooms):
+def create_fleet(settings, screen, snail, mushrooms):
     '''Create fleet of mushrooms.'''
     # Create a mushroom and find the number of mushrooms in a row.
     # Spacing between each mushroom is equal to 1/2 mushroom width.
     mushroom = Mushroom(settings, screen)
-    mushroom_width = mushroom.rect.width
-    available_space_x = settings.screen_width - 2 * (.5*mushroom_width)
-    number_mushrooms_x = int(available_space_x / (2*mushroom_width))
+    number_mushrooms_x = get_number_mushrooms_x(settings, mushroom.rect.width)
+    number_rows = get_number_rows(settings, snail.rect.height, mushroom.rect.height)
 
-    # Create the first row of mushrooms.
-    for mushroom_number in range(number_mushrooms_x):
-        # Create a mushroom and place it in the row
-        mushroom = Mushroom(settings, screen)
-        mushroom.x = mushroom_width + 2 * mushroom_width * mushroom_number
-        mushroom.rect.x = mushroom.x
-        mushrooms.add(mushroom)
+    # Create the fleet of mushrooms.
+    for row_number in range(number_rows):
+        # Create the first row of mushrooms.
+        for mushroom_number in range(number_mushrooms_x):
+            # Create a mushroom and place it in the row
+            create_mushroom(settings, screen, mushrooms, mushroom_number, row_number)
+
+    
+
+        
+
+def get_number_rows(settings, snail_height, mushroom_height):
+    '''Determine the number of rows of mushrooms that fit on the screen.'''
+    available_space_y = (settings.screen_height - (3*mushroom_height)-snail_height)
+    number_rows = int(available_space_y / (2*mushroom_height))
+    return number_rows
