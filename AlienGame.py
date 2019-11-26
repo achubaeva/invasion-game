@@ -30,9 +30,10 @@ def run_game():
     # Start the main loop for the game.
     while True:
         gf.check_events(settings, screen, snail, bullets)
-        snail.update()
-        gf.update_bullets(settings, screen, snail, mushrooms, bullets)
-        gf.update_mushrooms(settings, stats, screen, snail, mushrooms, bullets)
-        gf.update_screen(settings, screen, snail, mushrooms, bullets)
+        if stats.game_active:
+            snail.update()
+            gf.update_bullets(settings, screen, snail, mushrooms, bullets)
+            gf.update_mushrooms(settings, stats, screen, snail, mushrooms, bullets)
+            gf.update_screen(settings, screen, snail, mushrooms, bullets)
 
 run_game()

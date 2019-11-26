@@ -116,6 +116,9 @@ def update_mushrooms(settings, stats, screen, snail, mushrooms, bullets):
     check_fleet_edges(settings, mushrooms)
     mushrooms.update()
 
+    # Look for mushrooms hitting bottom of screen
+    check_mushrooms_bottom(settings, stats, screen, snail, mushrooms, bullets)
+
     # Check for mushroom-snail collisions
     if pygame.sprite.spritecollideany(snail, mushrooms):
         snail_hit(settings, stats, screen, snail, mushrooms, bullets)
@@ -142,18 +145,30 @@ def change_fleet_direction(settings, mushrooms):
 
 def snail_hit(settings, stats, screen, snail, mushrooms, bullets):
     '''Respond to snail being hit by mushrooms.'''
-    # decrement snails_left.
-    stats.snails_left -= 1
+    if stats.snails_left > 0:
+        # decrement snails_left.
+        stats.snails_left -= 1
 
-    # EMpty the list of mushrooms and bullets
-    mushrooms.empty()
-    bullets.empty()
+        # Empty the list of mushrooms and bullets
+        mushrooms.empty()
+        bullets.empty()
 
-    # Create a new fleet and center snail
-    create_fleet(settings, screen, snail, mushrooms)
-    snail.center_snail()
+        # Create a new fleet and center snail
+        create_fleet(settings, screen, snail, mushrooms)
+        snail.center_snail()
 
-    # Pause
-    sleep(0.5)
+        # Pause
+        sleep(0.5)
+    else:
+        stats.game_active = False
+
+def check_mushrooms_bottom(settings, stats, screen, snail, mushrooms, bullets):
+    '''Check if any mushrooms reached bottom of screen.'''
+    screen_rect = screen.get_rect()
+    for mushroom in mushrooms.sprites():
+        if mushroom.rect.bottom >= screen_rect.bottom:
+            # Treat this same as if snail got hit
+            snail_hit(settings, stats, screen, snail, mushrooms, bullets)
+            break
 
 
