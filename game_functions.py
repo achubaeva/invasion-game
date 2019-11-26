@@ -2,6 +2,8 @@ import sys
 import pygame
 from bullet import Bullet
 from mushroom import Mushroom
+from time import sleep
+
 
 def get_number_mushrooms_x(settings, mushroom_width):
     '''Determine the number of mushrooms that fit in a row'''
@@ -109,10 +111,14 @@ def create_fleet(settings, screen, snail, mushrooms):
             # Create a mushroom and place it in the row
             create_mushroom(settings, screen, mushrooms, mushroom_number, row_number)
 
-def update_mushrooms(settings, mushrooms):
+def update_mushrooms(settings, stats, screen, snail, mushrooms, bullets):
     '''Update the positions of all mushrooms in fleet.'''
     check_fleet_edges(settings, mushrooms)
     mushrooms.update()
+
+    # Check for mushroom-snail collisions
+    if pygame.sprite.spritecollideany(snail, mushrooms):
+        snail_hit(settings, stats, screen, snail, mushrooms, bullets)
         
 
 def get_number_rows(settings, snail_height, mushroom_height):
@@ -133,4 +139,21 @@ def change_fleet_direction(settings, mushrooms):
     for mushroom in mushrooms.sprites():
         mushroom.rect.y += settings.fleet_drop_speed
     settings.fleet_direction *= -1
+
+def snail_hit(settings, stats, screen, snail, mushrooms, bullets):
+    '''Respond to snail being hit by mushrooms.'''
+    # decrement snails_left.
+    stats.snails_left -= 1
+
+    # EMpty the list of mushrooms and bullets
+    mushrooms.empty()
+    bullets.empty()
+
+    # Create a new fleet and center snail
+    create_fleet(settings, screen, snail, mushrooms)
+    snail.center_snail()
+
+    # Pause
+    sleep(0.5)
+
 

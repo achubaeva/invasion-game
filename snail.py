@@ -35,3 +35,7 @@ class Snail():
     def blitme(self):
         '''Draw the snail at its current location.'''
         self.screen.blit(self.image, self.rect)
+
+    def center_snail(self):
+        '''Center the snail on the screen'''
+        self.center = self.screen_rect.centerx 
