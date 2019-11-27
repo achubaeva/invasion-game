@@ -57,12 +57,12 @@ def check_events(settings, screen, snail, bullets):
             pygame.quit()
             sys.exit
         if event.type == pygame.KEYDOWN:
-            check_keydown_events(event, settings, screen, snail, bullets)
+            check_keydown_events(event, settings, screen, snail, bullets, play_button)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, snail)
         
 
-def update_screen(settings, screen, snail, mushrooms, bullets):
+def update_screen(settings, screen, stats, snail, mushrooms, bullets, play_button):
     """Update images on the screen and flip to new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(settings.bg_color)
@@ -73,6 +73,11 @@ def update_screen(settings, screen, snail, mushrooms, bullets):
     snail.blitme()
     mushrooms.draw(screen)
     # Make the most recently drawn screen visible
+
+    # Draw play button if game inactive
+    if not stats.game_active:
+        play_button.draw_button()
+
     pygame.display.flip()
 
 def update_bullets(settings, screen, snail, mushrooms, bullets):
