@@ -49,7 +49,7 @@ def check_keyup_events(event, snail):
     elif event.key == pygame.K_LEFT:
         snail.moving_left = False
 
-def check_events(settings, screen, snail, bullets):
+def check_events(settings, screen, stats, play_button, snail, mushrooms, bullets):
     '''Respond to keypresses and mouse events.'''
     # Watch for keyboard and mouse events.
     for event in pygame.event.get():
@@ -57,12 +57,35 @@ def check_events(settings, screen, snail, bullets):
             pygame.quit()
             sys.exit
         if event.type == pygame.KEYDOWN:
-            check_keydown_events(event, settings, screen, snail, bullets, play_button)
+            check_keydown_events(event, settings, screen, snail, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, snail)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(settings, screen, stats, play_button, snail, mushrooms, bullets, mouse_x, mouse_y)
+
+def check_play_button(settings, screen, stats, play_button, snail, mushrooms, bullets, mouse_x, mouse_y):
+    '''Starts a new game when player clicks play.'''
+    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_clicked and not stats.game_active:
+
+        # Hide mouse cursor.
+        pygame.mouse.set_visible(False)
+        # Reset game stats.
+        stats.reset_stats()
+        settings.initialize_dynamic_settings()
+        stats.game_active = True
+
+        # Empty list of mushrooms and bullets.
+        mushrooms.empty()
+        bullets.empty()
+
+        # Create new fleet and center snail.
+        create_fleet(settings, screen, snail, mushrooms)
+        snail.center_snail()
         
 
-def update_screen(settings, screen, stats, snail, mushrooms, bullets, play_button):
+def update_screen(settings, screen, stats, sb, snail, mushrooms, bullets, play_button):
     """Update images on the screen and flip to new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(settings.bg_color)
@@ -72,7 +95,9 @@ def update_screen(settings, screen, stats, snail, mushrooms, bullets, play_butto
         bullet.draw_bullet()
     snail.blitme()
     mushrooms.draw(screen)
-    # Make the most recently drawn screen visible
+    
+    # Draw score information.
+    sb.show_score()
 
     # Draw play button if game inactive
     if not stats.game_active:
@@ -80,7 +105,13 @@ def update_screen(settings, screen, stats, snail, mushrooms, bullets, play_butto
 
     pygame.display.flip()
 
-def update_bullets(settings, screen, snail, mushrooms, bullets):
+def check_high_score(stats, sb):
+    '''Check if there is a new high score.'''
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
+
+def update_bullets(settings, screen, stats, sb, snail, mushrooms, bullets):
     '''Update the position of bullets and get rid of old bullets.'''
     # update bullet positions.
     # Get rid of bullets that have dissappeared.
@@ -89,15 +120,21 @@ def update_bullets(settings, screen, snail, mushrooms, bullets):
         if bullet.rect.bottom <=0:
             bullets.remove(bullet)
     
-    check_bullet_mushroom_collisions(settings, screen, snail, mushrooms, bullets)
+    check_bullet_mushroom_collisions(settings, screen, stats, sb, snail, mushrooms, bullets)
 
-def check_bullet_mushroom_collisions(settings, screen, snail, mushrooms, bullets):
+def check_bullet_mushroom_collisions(settings, screen, stats, sb, snail, mushrooms, bullets):
     '''Respond to bullet-mushroom collisions'''
     # Check for any bullets that hit mushrooms. If so, get rid of bullet and mushroom.
     collisions = pygame.sprite.groupcollide(bullets, mushrooms, True, True)
+    if collisions:
+        for mushrooms in collisions.values():
+            stats.score += settings.mushroom_points*len(mushrooms)
+        sb.prep_score()
+        check_high_score(stats, sb)
     if len(mushrooms) == 0:
-        # Destroy exisitng bullets and create new fleet.
+        # Destroy exisitng bullets, speed up game, and create new fleet.
         bullets.empty()
+        settings.increase_speed()
         create_fleet(settings, screen, snail, mushrooms)
 
 
