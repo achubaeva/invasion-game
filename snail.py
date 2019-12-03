@@ -1,14 +1,16 @@
 
 import pygame
+from pygame.sprite import Sprite
 
-class Snail():
+class Snail(Sprite):
 
     def __init__(self, settings, screen):
         '''Initialize the snail and setits starting position.'''
+        super(Snail, self).__init__()
         self.screen = screen
         self.settings = settings
         # Load the snail image and get its rect.
-        self.image = pygame.image.load('Images/snail.bmp')
+        self.image = pygame.image.load('Images/snail.png')
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
 

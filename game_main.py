@@ -14,7 +14,7 @@ def run_game():
     pygame.init()
     settings = Settings()
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
-    pygame.display.set_caption("Alien Invasion")
+    pygame.display.set_caption("Garden Game")
     # Make a snail.
     snail = Snail(settings, screen)
     # make a group to store bullets in.
@@ -33,13 +33,13 @@ def run_game():
 
     # Start the main loop for the game.
     while True:
-        gf.check_events(settings, screen, stats, play_button, snail, mushrooms, bullets)
+        gf.check_events(settings, screen, stats, sb, play_button, snail, mushrooms, bullets)
         
         gf.update_screen(settings, screen, stats, sb, snail, mushrooms, bullets, play_button)
 
         if stats.game_active:
             snail.update()
             gf.update_bullets(settings, screen, stats, sb, snail, mushrooms, bullets)
-            gf.update_mushrooms(settings, stats, screen, snail, mushrooms, bullets)
+            gf.update_mushrooms(settings, stats, screen, sb, snail, mushrooms, bullets)
 
 run_game()

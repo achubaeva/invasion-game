@@ -49,7 +49,7 @@ def check_keyup_events(event, snail):
     elif event.key == pygame.K_LEFT:
         snail.moving_left = False
 
-def check_events(settings, screen, stats, play_button, snail, mushrooms, bullets):
+def check_events(settings, screen, stats, sb, play_button, snail, mushrooms, bullets):
     '''Respond to keypresses and mouse events.'''
     # Watch for keyboard and mouse events.
     for event in pygame.event.get():
@@ -62,9 +62,9 @@ def check_events(settings, screen, stats, play_button, snail, mushrooms, bullets
             check_keyup_events(event, snail)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(settings, screen, stats, play_button, snail, mushrooms, bullets, mouse_x, mouse_y)
+            check_play_button(settings, screen, stats, sb, play_button, snail, mushrooms, bullets, mouse_x, mouse_y)
 
-def check_play_button(settings, screen, stats, play_button, snail, mushrooms, bullets, mouse_x, mouse_y):
+def check_play_button(settings, screen, stats, sb, play_button, snail, mushrooms, bullets, mouse_x, mouse_y):
     '''Starts a new game when player clicks play.'''
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
@@ -79,6 +79,12 @@ def check_play_button(settings, screen, stats, play_button, snail, mushrooms, bu
         # Empty list of mushrooms and bullets.
         mushrooms.empty()
         bullets.empty()
+
+        # Reset the scoreboard images.
+        sb.prep_score()
+        sb.prep_high_score()
+        sb.prep_level()
+        sb.prep_snails()
 
         # Create new fleet and center snail.
         create_fleet(settings, screen, snail, mushrooms)
@@ -135,6 +141,11 @@ def check_bullet_mushroom_collisions(settings, screen, stats, sb, snail, mushroo
         # Destroy exisitng bullets, speed up game, and create new fleet.
         bullets.empty()
         settings.increase_speed()
+
+        # Increase the level.
+        stats.level += 1
+        sb.prep_level()
+
         create_fleet(settings, screen, snail, mushrooms)
 
 
@@ -147,23 +158,23 @@ def create_fleet(settings, screen, snail, mushrooms):
     number_rows = get_number_rows(settings, snail.rect.height, mushroom.rect.height)
 
     # Create the fleet of mushrooms.
-    for row_number in range(number_rows):
+    for row_number in range(number_rows//2):
         # Create the first row of mushrooms.
         for mushroom_number in range(number_mushrooms_x):
             # Create a mushroom and place it in the row
             create_mushroom(settings, screen, mushrooms, mushroom_number, row_number)
 
-def update_mushrooms(settings, stats, screen, snail, mushrooms, bullets):
+def update_mushrooms(settings, stats, screen, sb, snail, mushrooms, bullets):
     '''Update the positions of all mushrooms in fleet.'''
     check_fleet_edges(settings, mushrooms)
     mushrooms.update()
 
     # Look for mushrooms hitting bottom of screen
-    check_mushrooms_bottom(settings, stats, screen, snail, mushrooms, bullets)
+    check_mushrooms_bottom(settings, stats, screen, sb, snail, mushrooms, bullets)
 
     # Check for mushroom-snail collisions
     if pygame.sprite.spritecollideany(snail, mushrooms):
-        snail_hit(settings, stats, screen, snail, mushrooms, bullets)
+        snail_hit(settings, stats, screen, sb, snail, mushrooms, bullets)
         
 
 def get_number_rows(settings, snail_height, mushroom_height):
@@ -185,7 +196,7 @@ def change_fleet_direction(settings, mushrooms):
         mushroom.rect.y += settings.fleet_drop_speed
     settings.fleet_direction *= -1
 
-def snail_hit(settings, stats, screen, snail, mushrooms, bullets):
+def snail_hit(settings, stats, screen, sb, snail, mushrooms, bullets):
     '''Respond to snail being hit by mushrooms.'''
     if stats.snails_left > 0:
         # decrement snails_left.
@@ -199,12 +210,15 @@ def snail_hit(settings, stats, screen, snail, mushrooms, bullets):
         create_fleet(settings, screen, snail, mushrooms)
         snail.center_snail()
 
+        # Update scoreboard
+        sb.prep_snails()
+
         # Pause
         sleep(0.5)
     else:
         stats.game_active = False
 
-def check_mushrooms_bottom(settings, stats, screen, snail, mushrooms, bullets):
+def check_mushrooms_bottom(settings, stats, screen, sb, snail, mushrooms, bullets):
     '''Check if any mushrooms reached bottom of screen.'''
     screen_rect = screen.get_rect()
     for mushroom in mushrooms.sprites():

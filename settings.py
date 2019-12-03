@@ -6,16 +6,16 @@ class Settings():
     def __init__(self):
         '''Initialize the game's static settings.'''
         
-        # Screen settings
-        self.screen_width = 800
-        self.screen_height = 600
-        self.bg_color = (255,255,255)
+        # Screen settingss
+        self.screen_width = 1000
+        self.screen_height = 700
+        self.bg_color = (226, 254, 226)
         
        
         
         # Bullet settings
-        self.bullet_width = 30
-        self.bullet_height = 15
+        self.bullet_width = 20
+        self.bullet_height = 20
         self.bullet_color = 60, 60, 60
         self.bullets_allowed = 3
         
@@ -36,9 +36,9 @@ class Settings():
     def initialize_dynamic_settings(self):
         '''Initialize settings that change throughout the game.'''
          # Snail settings
-        self.snail_speed_factor = 1.5
+        self.snail_speed_factor = 2
         self.bullet_speed_factor = 3
-        self.mushroom_speed_factor = 5
+        self.mushroom_speed_factor = 2
         # 1 is right, -1 is left
         self.fleet_direction = 1
 

@@ -11,12 +11,12 @@ class Mushroom(Sprite):
         self.settings = settings
         
         # Load the mushroom image and set its rect attribute.
-        self.image = pygame.image.load('Images/mushroom.bmp')
+        self.image = pygame.image.load('Images/mushroom.png')
         self.rect = self.image.get_rect()
 
         # Start a new mushroom near the top of the left screen.
         self.rect.x = .5*self.rect.width
-        self.rect.y = .5*self.rect.height
+        self.rect.y = 10*self.rect.height
 
         # Store the mushroom's exact position.
         self.x = float(self.rect.x)
